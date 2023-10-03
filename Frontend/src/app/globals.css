@@ -22,3 +22,19 @@ body {
       transparent,
       rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
+
+* {
+  color: white;
+}
+
+body {
+  background: black;
+}
+
+.__className_e66fe9 {
+  background: black;
+}
+
+.chakra-input__right-element {
+  background: transparent;
+}
