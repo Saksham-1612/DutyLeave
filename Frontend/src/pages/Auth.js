@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect } from "react";
 import {
   Box,
@@ -10,20 +9,19 @@ import {
   TabPanel,
   Text,
 } from "@chakra-ui/react";
+import Login from "../components/auth/Login";
+import Signup from "../components/auth/Signup";
+import { useNavigate } from "react-router-dom";
 
-import Login from "@/components/Login";
-import Signup from "@/components/Signup";
-import { useRouter } from "next/navigation";
-
-const Home = () => {
-  const router = useRouter();
+const Auth = () => {
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     // setUser(userInfo);
 
-    if (userInfo) router.push("/");
-  }, []);
+    if (userInfo) navigate("/dashboard");
+  }, [navigate]);
 
   return (
     <Container maxW="xl" centerContent>
@@ -61,4 +59,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Auth;

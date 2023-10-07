@@ -1,7 +1,6 @@
-"use client";
 import React, { useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   FormControl,
@@ -12,8 +11,9 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { BACKEND_URL } from "@/service/BackendUrl";
-import { GlobalState } from "@/context/GlobalProvider";
+
+import { BACKEND_URL } from "../../service/BackendUrl";
+import { GlobalState } from "../../context/GlobalProvider";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -23,7 +23,7 @@ const Login = () => {
 
   const { setUser } = GlobalState();
 
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const toast = useToast();
 
@@ -34,16 +34,20 @@ const Login = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      //   const config = {
-      //     headers: {
-      //       "Content-type": "application/json",
-      //     },
-      //   };
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
 
-      const res = await axios.post(`${BACKEND_URL}/api/user/login`, {
-        reg,
-        password,
-      });
+      const res = await axios.post(
+        `${BACKEND_URL}/api/user/login`,
+        {
+          reg,
+          password,
+        },
+        config
+      );
 
       console.log(res.data);
 
@@ -56,7 +60,7 @@ const Login = () => {
           position: "bottom",
         });
         setUser(res.data.user);
-        router.push("/");
+        navigate("/dashboard");
         localStorage.setItem("userInfo", JSON.stringify(res.data.user));
         console.log(res.data.user);
       } else {
@@ -121,6 +125,7 @@ const Login = () => {
         variant="solid"
         colorScheme="red"
         w="100%"
+        mb="15px"
         onClick={() => {
           setReg("12104444");
           setPassword("123456");
@@ -128,6 +133,9 @@ const Login = () => {
       >
         Login As Guest User
       </Button>
+      <Link to="/forgot-password" className="f-p">
+        Forgot Password?
+      </Link>
     </VStack>
   );
 };

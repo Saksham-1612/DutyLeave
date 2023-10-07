@@ -6,11 +6,11 @@ import {
   InputGroup,
   InputRightElement,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import axios from "axios";
-import { useToast } from "@chakra-ui/react";
-import { BACKEND_URL } from "@/service/BackendUrl";
+import { BACKEND_URL } from "../../service/BackendUrl";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -40,17 +40,21 @@ const Signup = () => {
       return;
     }
     try {
-      //   const config = {
-      //     headers: {
-      //       "Content-type": "application/json",
-      //     },
-      //   };
-      const res = await axios.post(`${BACKEND_URL}/api/user/register`, {
-        name,
-        email,
-        reg,
-        password,
-      });
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const res = await axios.post(
+        `${BACKEND_URL}/api/user/register`,
+        {
+          name,
+          email,
+          reg,
+          password,
+        },
+        config
+      );
       console.log(res.data);
       if (res && res.data.success) {
         toast({
