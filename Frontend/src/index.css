@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  background: black !important;
+  color: white !important;
+}
+
+.f-p:hover {
+  text-decoration: underline;
+}
