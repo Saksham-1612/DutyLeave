@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@chakra-ui/react";
+import Scanner from "../components/scanner/Scanner";
+import Qr from "../components/qr/Qr";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,7 +21,15 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  return <Button onClick={handleLogout}>Logout</Button>;
+  return (
+    <>
+      <Button onClick={handleLogout}>Logout</Button>
+      <div className="grid">
+        <Scanner />
+        <Qr />
+      </div>
+    </>
+  );
 };
 
 export default Dashboard;
