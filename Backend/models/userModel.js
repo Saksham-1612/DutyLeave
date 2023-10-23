@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     reg: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },

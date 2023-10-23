@@ -1,19 +1,21 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@chakra-ui/react";
+import { Link, useNavigate } from "react-router-dom";
+import { Box, Button, Text } from "@chakra-ui/react";
 import Scanner from "../components/scanner/Scanner";
 import Qr from "../components/qr/Qr";
+import { useAuth } from "../context/GlobalProvider";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [auth, setAuth] = useAuth();
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    // setUser(userInfo);
 
     if (!userInfo) {
       navigate("/");
     }
+    console.log(auth);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -24,8 +26,20 @@ const Dashboard = () => {
   return (
     <>
       <Button onClick={handleLogout}>Logout</Button>
+      <Button ms="10px" onClick={() => navigate("/events")}>
+        Events
+      </Button>
       <div className="grid">
-        <Scanner />
+        {auth?.user?.role === "admin" ? (
+          <>
+            <Box>
+              <Text>Admin Panel</Text>
+              <Scanner />
+            </Box>
+          </>
+        ) : (
+          ""
+        )}
         <Qr />
       </div>
     </>

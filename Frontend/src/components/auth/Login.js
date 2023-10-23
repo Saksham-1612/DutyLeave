@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 
 import { BACKEND_URL } from "../../service/BackendUrl";
-import { GlobalState } from "../../context/GlobalProvider";
+import { useAuth } from "../../context/GlobalProvider";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -21,7 +21,7 @@ const Login = () => {
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
 
-  const { setUser } = GlobalState();
+  const [auth, setAuth] = useAuth();
 
   const navigate = useNavigate();
 
@@ -59,9 +59,13 @@ const Login = () => {
           isClosable: true,
           position: "bottom",
         });
-        setUser(res.data.user);
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
         navigate("/dashboard");
-        localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+        localStorage.setItem("userInfo", JSON.stringify(res.data));
         console.log(res.data.user);
       } else {
         toast({
@@ -128,10 +132,10 @@ const Login = () => {
         mb="15px"
         onClick={() => {
           setReg("12104444");
-          setPassword("123456");
+          setPassword("12345");
         }}
       >
-        Login As Guest User
+        Login As Admin
       </Button>
       <Link to="/forgot-password" className="f-p">
         Forgot Password?

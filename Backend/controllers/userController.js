@@ -185,3 +185,19 @@ export const resetPasswordController = async (req, res) => {
     });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { reg: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const users = await userModel
+    .find(keyword)
+    .find({ _id: { $ne: req.user._id } });
+  res.send(users);
+};
