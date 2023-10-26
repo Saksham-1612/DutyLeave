@@ -27,10 +27,14 @@ const CreateEvent = ({ children }) => {
   const [description, setDescription] = useState();
   const [startTime, setStartTime] = useState();
   const [endTime, setEndTime] = useState();
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [selectedAttendees, setSelectedAttendees] = useState([]);
+  const [search1, setSearch1] = useState("");
+  const [search2, setSearch2] = useState("");
+  const [searchResult1, setSearchResult1] = useState([]);
+  const [searchResult2, setSearchResult2] = useState([]);
+  const [loading1, setLoading1] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState([]);
   const [auth, setAuth] = useAuth();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,19 +44,46 @@ const CreateEvent = ({ children }) => {
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
-  const handleSearch = async (query) => {
-    setSearch(query);
+  const handleSearch1 = async (query) => {
+    setSearch1(query);
     if (!query) {
       return;
     }
     try {
-      setLoading(true);
+      setLoading1(true);
 
       const { data } = await axios.get(
-        `${BACKEND_URL}/api/user?search=${search}`
+        `${BACKEND_URL}/api/user/faculty?search=${search1}`
       );
-      setLoading(false);
-      setSearchResult(data);
+      setLoading1(false);
+      setSearchResult1(data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error occured!",
+        description: "Failed to search faculty!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+    setLoading1(false);
+  };
+
+  const handleSearch2 = async (query) => {
+    setSearch2(query);
+    if (!query) {
+      return;
+    }
+    try {
+      setLoading2(true);
+
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/user/attendees?search=${search2}`
+      );
+      setLoading2(false);
+      setSearchResult2(data);
     } catch (error) {
       console.log(error);
       toast({
@@ -64,11 +95,11 @@ const CreateEvent = ({ children }) => {
         position: "bottom-left",
       });
     }
-    setLoading(false);
+    setLoading2(false);
   };
 
-  const handleGroup = (userToAdd) => {
-    if (selectedUsers.includes(userToAdd)) {
+  const handleGroup1 = (userToAdd) => {
+    if (selectedFaculty.includes(userToAdd)) {
       toast({
         title: "Student is already added!",
         status: "warning",
@@ -78,24 +109,45 @@ const CreateEvent = ({ children }) => {
       });
       return;
     }
-    setSelectedUsers([...selectedUsers, userToAdd]);
+    setSelectedFaculty([...selectedFaculty, userToAdd]);
   };
 
-  const handleDelete = (deletedUser) => {
-    setSelectedUsers(
-      selectedUsers.filter((sel) => sel._id !== deletedUser._id)
+  const handleGroup2 = (userToAdd) => {
+    if (selectedAttendees.includes(userToAdd)) {
+      toast({
+        title: "Student is already added!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    setSelectedAttendees([...selectedAttendees, userToAdd]);
+  };
+
+  const handleDelete1 = (deletedUser) => {
+    setSelectedFaculty(
+      selectedFaculty.filter((sel) => sel._id !== deletedUser._id)
+    );
+  };
+
+  const handleDelete2 = (deletedUser) => {
+    setSelectedAttendees(
+      selectedAttendees.filter((sel) => sel._id !== deletedUser._id)
     );
   };
 
   const createEvent = async () => {
-    setLoading(true);
+    setLoading1(true);
     try {
       const res = await axios.post(`${BACKEND_URL}/api/event/create-event`, {
         title,
         description,
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
-        attendees: JSON.stringify(selectedUsers.map((u) => u._id)),
+        faculty: JSON.stringify(selectedFaculty.map((a) => a._id)),
+        attendees: JSON.stringify(selectedAttendees.map((f) => f._id)),
       });
       console.log(res.data);
       if (res && res.data.success) {
@@ -111,8 +163,12 @@ const CreateEvent = ({ children }) => {
         setDescription("");
         setStartTime("");
         setEndTime("");
-        // selectedUsers("");
+        setSelectedFaculty([]);
+        setSelectedAttendees([]);
+        setSearchResult1([]);
+        setSearchResult2([]);
         // getAllEvents();
+        window.location.reload();
       } else {
         toast({
           title: res.data.message,
@@ -122,7 +178,7 @@ const CreateEvent = ({ children }) => {
           position: "bottom",
         });
       }
-      setLoading(false);
+      setLoading1(false);
     } catch (error) {
       console.log(error);
       toast({
@@ -133,7 +189,7 @@ const CreateEvent = ({ children }) => {
         position: "bottom",
       });
     }
-    setLoading(false);
+    setLoading1(false);
   };
 
   return (
@@ -172,30 +228,60 @@ const CreateEvent = ({ children }) => {
 
             <FormControl mt={4}>
               <Input
-                placeholder="Add Attendees"
+                placeholder="Add Faculty In-Charge"
                 mb="1"
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => handleSearch1(e.target.value)}
               />
             </FormControl>
             <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedUsers.map((u) => (
+              {selectedFaculty.map((u) => (
                 <UserBadgeItem
                   key={u._id}
                   user={u}
-                  handleFunction={() => handleDelete(u)}
+                  handleFunction={() => handleDelete1(u)}
                 />
               ))}
             </Box>
-            {loading ? (
+            {loading1 ? (
               <Box textAlign="center">loading...</Box>
             ) : (
-              searchResult
+              searchResult1
                 ?.slice(0, 5)
                 .map((user) => (
                   <UserListItem
                     key={user._id}
                     user={user}
-                    handleFunction={() => handleGroup(user)}
+                    handleFunction={() => handleGroup1(user)}
+                  />
+                ))
+            )}
+
+            <FormControl mt={4}>
+              <Input
+                placeholder="Add Attendees"
+                mb="1"
+                onChange={(e) => handleSearch2(e.target.value)}
+              />
+            </FormControl>
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedAttendees.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete2(u)}
+                />
+              ))}
+            </Box>
+            {loading2 ? (
+              <Box textAlign="center">loading...</Box>
+            ) : (
+              searchResult2
+                ?.slice(0, 5)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup2(user)}
                   />
                 ))
             )}
