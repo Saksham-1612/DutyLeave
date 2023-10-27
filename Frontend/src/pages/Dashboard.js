@@ -30,7 +30,7 @@ const Dashboard = () => {
         Events
       </Button>
       <div className="grid">
-        {auth?.user?.role === "admin" ? (
+        {auth?.user?.role === "admin" || auth?.user?.role === "faculty" ? (
           <>
             <Box>
               <Text>Admin Panel</Text>

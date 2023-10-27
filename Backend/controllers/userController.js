@@ -2,6 +2,7 @@ import { comparePassword, hashPassword } from "../helpers/authHelper.js";
 import userModel from "../models/userModel.js";
 import JWT from "jsonwebtoken";
 import { sendPasswordResetEmail } from "../services/emailService.js";
+import mongoose from "mongoose";
 
 export const registerController = async (req, res) => {
   try {
@@ -193,11 +194,55 @@ export const getAllUsers = async (req, res) => {
           { reg: { $regex: req.query.search, $options: "i" } },
           { email: { $regex: req.query.search, $options: "i" } },
         ],
+        role: "student",
       }
-    : {};
+    : { role: "student" };
 
   const users = await userModel
     .find(keyword)
-    .find({ _id: { $ne: req.user._id } });
+    .find({ _id: { $ne: req.user._id } })
+    .select("-password");
   res.send(users);
+};
+
+export const getAllFaculty = async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { reg: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+        role: "faculty",
+      }
+    : { role: "faculty" };
+
+  const users = await userModel
+    .find(keyword)
+    .find({ _id: { $ne: req.user._id } })
+    .select("-password");
+  res.send(users);
+};
+
+export const getSingleUser = async (req, res) => {
+  try {
+    const userD = await userModel.findById(req.params.id).select("-password");
+    if (!userD) {
+      return res.status(404).send({
+        success: false,
+        message: "Error!",
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "User fetched successfully!",
+      userD,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error fetching user!",
+      error,
+    });
+  }
 };

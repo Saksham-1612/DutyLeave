@@ -14,32 +14,24 @@ export const createEventController = async (req, res) => {
     }
 
     const attendees = JSON.parse(req.body.attendees);
+    const faculty = JSON.parse(req.body.faculty);
 
     const event = new eventModel({
       title,
       description,
       startTime,
       endTime,
+      faculty: faculty,
     });
 
     for (const attendeeId of attendees) {
-      const userData = await userModel.findById(attendeeId).select("-password");
-      if (userData) {
+      if (attendeeId) {
         event.attendees.push({
-          user: userData,
+          user: attendeeId,
           // attended: attendee.attended || false,
         });
       }
     }
-
-    // const attendeePromises = attendees.map(async (attendeeId) => {
-    //   const userData = await userModel.findById(attendeeId).select("-password");
-    //   return { user: userData };
-    // });
-
-    // const attendeesData = await Promise.all(attendeePromises);
-
-    // event.attendees = attendeesData;
 
     await event.save();
 
@@ -58,17 +50,42 @@ export const createEventController = async (req, res) => {
   }
 };
 
+export const getEventFaculty = async (req, res) => {
+  try {
+    const { allFacultyIds } = req.query;
+    // console.log(allFacultyIds);
+
+    const facultyData = await userModel
+      .find({ _id: { $in: allFacultyIds } })
+      .select("-password");
+
+    // console.log(facultyData);
+
+    res.status(200).send({
+      success: true,
+      message: "Faculty details fetched successfully!",
+      facultyData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch faculties details!",
+      error,
+    });
+  }
+};
+
 export const getEventAttendees = async (req, res) => {
   try {
-    const { allUserIds } = req.query; // Assuming the request body contains an array of attendee IDs
-    console.log(allUserIds);
+    const { allUserIds } = req.query;
+    // console.log(allUserIds);
 
-    // Fetch user details for the provided attendee IDs
     const attendeesData = await userModel
       .find({ _id: { $in: allUserIds } })
       .select("-password");
 
-    console.log(attendeesData);
+    // console.log(attendeesData);
 
     res.status(200).send({
       success: true,
@@ -79,7 +96,7 @@ export const getEventAttendees = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Failed to fetch attendees' details",
+      message: "Failed to fetch attendees' details!",
       error,
     });
   }
@@ -118,6 +135,90 @@ export const deleteEventController = async (req, res) => {
       success: false,
       message: "Error while deleting event!",
       error,
+    });
+  }
+};
+
+export const getSingleEventController = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+
+    if (!eventId) {
+      return res.status(404).send({
+        success: false,
+        message: "No id is there!",
+      });
+    }
+    console.log(eventId);
+
+    const eventData = await eventModel.findById(eventId);
+
+    console.log(eventData);
+
+    res.status(200).send({
+      success: true,
+      message: "Event data fetched successfully!",
+      eventData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in fetching event data!",
+    });
+  }
+};
+
+export const updateEventController = async (req, res) => {
+  try {
+    const { title, description, startTime, endTime, faculty } = req.body;
+
+    const updatedEvent = {
+      title,
+      description,
+      startTime,
+      endTime,
+      faculty: JSON.parse(faculty),
+      attendees: [],
+    };
+
+    const event = await eventModel.findByIdAndUpdate(
+      req.params.id,
+      updatedEvent,
+      { new: true }
+    );
+
+    const attendees = JSON.parse(req.body.attendees);
+
+    for (const attendeeId of attendees) {
+      if (attendeeId) {
+        event.attendees.push({
+          user: attendeeId,
+          // attended: attendee.attended || false,
+        });
+      }
+    }
+
+    const updatedEventWithAttendees = await event.save();
+
+    if (!event) {
+      return res.status(404).send({
+        success: false,
+        message: "Event not found!",
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Event updated successfully!",
+      event: updatedEventWithAttendees,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error in updating event!",
     });
   }
 };

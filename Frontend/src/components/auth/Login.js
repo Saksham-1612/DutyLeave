@@ -127,15 +127,26 @@ const Login = () => {
       </Button>
       <Button
         variant="solid"
-        colorScheme="red"
+        colorScheme="yellow"
         w="100%"
-        mb="15px"
         onClick={() => {
           setReg("12104444");
           setPassword("12345");
         }}
       >
         Login As Admin
+      </Button>
+      <Button
+        variant="solid"
+        colorScheme="red"
+        w="100%"
+        mb="15px"
+        onClick={() => {
+          setReg("12345");
+          setPassword("12345");
+        }}
+      >
+        Login As Faculty
       </Button>
       <Link to="/forgot-password" className="f-p">
         Forgot Password?
