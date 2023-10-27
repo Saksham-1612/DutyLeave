@@ -7,6 +7,7 @@ import {
   loginController,
   registerController,
   resetPasswordController,
+  updateRoleController,
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
@@ -25,5 +26,7 @@ router.post("/register", registerController);
 router.post("/forgot-password", forgotPasswordController);
 
 router.post("/reset-password", resetPasswordController);
+
+router.put("/update-role", protect, updateRoleController);
 
 export default router;

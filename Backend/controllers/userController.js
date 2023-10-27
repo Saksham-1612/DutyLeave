@@ -57,7 +57,7 @@ export const loginController = async (req, res) => {
     }
 
     const user = await userModel.findOne({ reg });
-
+    console.log(user);
     if (!user) {
       return res.status(401).send({
         success: false,
@@ -244,5 +244,43 @@ export const getSingleUser = async (req, res) => {
       message: "Error fetching user!",
       error,
     });
+  }
+};
+
+export const updateRoleController = async (req, res) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await userModel.findById(_id);
+
+    if (!user) {
+      return res.status(401).send({
+        success: false,
+        message: "User not found!",
+      });
+    }
+    console.log(user);
+    if (user.role !== "SuperAdmin") {
+      return res.status(403).send({ msg: "Unauthorized access" });
+    }
+    // registration of user to update role
+    // role to be done
+    const { reg, role } = req.body;
+    console.log(reg, role);
+    const userToBeUpdated = await userModel.findOne({ reg: reg });
+    console.log(userToBeUpdated);
+    if (!userToBeUpdated) {
+      return res.status(404).send({
+        success: false,
+        message: "User to be updated not found",
+      });
+    }
+    userToBeUpdated.role = role;
+    await userToBeUpdated.save();
+
+    return res.status(200).send({ msg: "User Role updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ msg: "Error updating user", error: error });
   }
 };
