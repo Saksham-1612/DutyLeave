@@ -1,9 +1,10 @@
 import JWT from "jsonwebtoken";
+import userModel from "../models/userModel.js";
 
 //Protected Routes token base
 export const protect = async (req, res, next) => {
   try {
-    const tokenHeader = req.headers.token;
+    const tokenHeader = req.headers.token || req.headers.authorization;
 
     if (!tokenHeader) {
       return res.status(401).json({
@@ -12,22 +13,42 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    const tokenParts = tokenHeader.split(" ");
-    // console.log(tokenParts[1]);
+    // console.log(tokenHeader);
 
-    if (tokenParts.length !== 2) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token format!",
-      });
-    }
+    // const tokenParts = tokenHeader.split(" ");
 
-    const token = tokenParts[1];
+    // console.log(tokenParts.length);
+
+    // if (tokenParts.length !== 2) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: "Invalid token format!",
+    //   });
+    // }
+
+    const token = tokenHeader.replace("Bearer", "").trim();
 
     const decode = JWT.verify(token, process.env.JWT_SECRET);
+
+    let ud = await userModel.findById(decode._id);
+
+    // req.user = { ...decode, ...ud };
     req.user = decode;
+
+    if (req.baseUrl.includes("SuperAdmin")) {
+      if (ud.role == "SuperAdmin") {
+        next();
+      } else {
+        res.status(401).send({
+          success: false,
+          error,
+          message: "Not Enough Permisiion!",
+        });
+      }
+    } else {
+      next();
+    }
     // console.log(decode);
-    next();
   } catch (error) {
     console.log(error);
     res.status(401).send({
