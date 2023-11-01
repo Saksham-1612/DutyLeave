@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import superAdminRoutes from "./routes/superAdminRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(cors());
 
 app.use("/api/user", userRoutes);
 app.use("/api/event", eventRoutes);
+app.use("/api/superAdmin", superAdminRoutes);
 
 app.get("/api", (req, res) => {
   res.send("API is running!");

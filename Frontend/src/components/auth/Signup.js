@@ -11,6 +11,8 @@ import {
 import React, { useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../../service/BackendUrl";
+import { useAuth } from "../../context/GlobalProvider";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [show, setShow] = useState(false);
@@ -21,6 +23,8 @@ const Signup = () => {
   const [confirmpassword, setConfirmpassword] = useState();
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+  const [auth, setAuth] = useAuth();
+  const navigate = useNavigate();
 
   const handleClick = () => {
     setShow(!show);
@@ -64,6 +68,16 @@ const Signup = () => {
           isClosable: true,
           position: "bottom",
         });
+
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
+
+        navigate("/dashboard");
+        localStorage.setItem("userInfo", JSON.stringify(res.data));
+        console.log(res.data.user);
       } else {
         toast({
           title: res.data.message,
@@ -75,7 +89,7 @@ const Signup = () => {
       }
 
       setLoading(false);
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.log(error);
       toast({

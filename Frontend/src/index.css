@@ -21,3 +21,7 @@ body {
   width: 10rem;
   background-color: beige;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

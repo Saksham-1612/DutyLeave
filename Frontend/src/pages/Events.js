@@ -314,7 +314,7 @@ const Events = () => {
     } catch (error) {
       console.log(error);
       toast({
-        title: res.data.message,
+        title: "Something Went Wrong",
         status: "error",
         duration: 5000,
         isClosable: true,

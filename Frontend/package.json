@@ -32,6 +32,8 @@
       "react-app/jest"
     ]
   },
+  "author": "Shubham@MacBookPro",
+  "license": "ISC",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -43,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.5"
   }
 }
