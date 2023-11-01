@@ -28,13 +28,21 @@ const CreateEvent = ({ children }) => {
   const [startTime, setStartTime] = useState();
   const [endTime, setEndTime] = useState();
   const [selectedAttendees, setSelectedAttendees] = useState([]);
+  const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [selectedModerators, setSelectedModerators] = useState([]);
+  const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [search1, setSearch1] = useState("");
   const [search2, setSearch2] = useState("");
+  const [search3, setSearch3] = useState("");
+  const [search4, setSearch4] = useState("");
   const [searchResult1, setSearchResult1] = useState([]);
   const [searchResult2, setSearchResult2] = useState([]);
+  const [searchResult3, setSearchResult3] = useState([]);
+  const [searchResult4, setSearchResult4] = useState([]);
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
-  const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [loading3, setLoading3] = useState(false);
+  const [loading4, setLoading4] = useState(false);
   const [auth, setAuth] = useAuth();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -80,7 +88,7 @@ const CreateEvent = ({ children }) => {
       setLoading2(true);
 
       const { data } = await axios.get(
-        `${BACKEND_URL}/api/user/attendees?search=${search2}`
+        `${BACKEND_URL}/api/user/students?search=${search2}`
       );
       setLoading2(false);
       setSearchResult2(data);
@@ -96,6 +104,60 @@ const CreateEvent = ({ children }) => {
       });
     }
     setLoading2(false);
+  };
+
+  const handleSearch3 = async (query) => {
+    setSearch3(query);
+    if (!query) {
+      return;
+    }
+    try {
+      setLoading3(true);
+
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/user/students?search=${search3}`
+      );
+      setLoading3(false);
+      setSearchResult3(data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error occured!",
+        description: "Failed to search students!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+    setLoading3(false);
+  };
+
+  const handleSearch4 = async (query) => {
+    setSearch4(query);
+    if (!query) {
+      return;
+    }
+    try {
+      setLoading4(true);
+
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/user/students?search=${search4}`
+      );
+      setLoading4(false);
+      setSearchResult4(data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error occured!",
+        description: "Failed to search students!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+    setLoading4(false);
   };
 
   const handleGroup1 = (userToAdd) => {
@@ -126,6 +188,34 @@ const CreateEvent = ({ children }) => {
     setSelectedAttendees([...selectedAttendees, userToAdd]);
   };
 
+  const handleGroup3 = (userToAdd) => {
+    if (selectedModerators.includes(userToAdd)) {
+      toast({
+        title: "Moderator is already added!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    setSelectedModerators([...selectedModerators, userToAdd]);
+  };
+
+  const handleGroup4 = (userToAdd) => {
+    if (selectedVolunteers.includes(userToAdd)) {
+      toast({
+        title: "Student is already added!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    setSelectedVolunteers([...selectedVolunteers, userToAdd]);
+  };
+
   const handleDelete1 = (deletedUser) => {
     setSelectedFaculty(
       selectedFaculty.filter((sel) => sel._id !== deletedUser._id)
@@ -138,6 +228,18 @@ const CreateEvent = ({ children }) => {
     );
   };
 
+  const handleDelete3 = (deletedUser) => {
+    setSelectedModerators(
+      selectedModerators.filter((sel) => sel._id !== deletedUser._id)
+    );
+  };
+
+  const handleDelete4 = (deletedUser) => {
+    setSelectedVolunteers(
+      selectedVolunteers.filter((sel) => sel._id !== deletedUser._id)
+    );
+  };
+
   const createEvent = async () => {
     setLoading1(true);
     try {
@@ -146,8 +248,10 @@ const CreateEvent = ({ children }) => {
         description,
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
-        faculty: JSON.stringify(selectedFaculty.map((a) => a._id)),
-        attendees: JSON.stringify(selectedAttendees.map((f) => f._id)),
+        faculty: JSON.stringify(selectedFaculty.map((f) => f._id)),
+        attendees: JSON.stringify(selectedAttendees.map((a) => a._id)),
+        moderators: JSON.stringify(selectedModerators.map((m) => m._id)),
+        volunteers: JSON.stringify(selectedVolunteers.map((v) => v._id)),
       });
       console.log(res.data);
       if (res && res.data.success) {
@@ -165,8 +269,12 @@ const CreateEvent = ({ children }) => {
         setEndTime("");
         setSelectedFaculty([]);
         setSelectedAttendees([]);
+        setSelectedModerators([]);
+        setSelectedVolunteers([]);
         setSearchResult1([]);
         setSearchResult2([]);
+        setSearchResult3([]);
+        setSearchResult4([]);
         // getAllEvents();
         window.location.reload();
       } else {
@@ -207,7 +315,7 @@ const CreateEvent = ({ children }) => {
           <ModalHeader>Create Event</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Title</FormLabel>
               <Input
                 ref={initialRef}
@@ -217,7 +325,7 @@ const CreateEvent = ({ children }) => {
               />
             </FormControl>
 
-            <FormControl mt={4}>
+            <FormControl isRequired mt={4}>
               <FormLabel>Description</FormLabel>
               <Textarea
                 placeholder="Description"
@@ -226,7 +334,8 @@ const CreateEvent = ({ children }) => {
               />
             </FormControl>
 
-            <FormControl mt={4}>
+            <FormControl isRequired mt={4}>
+              <FormLabel>Faculty In-Charge</FormLabel>
               <Input
                 placeholder="Add Faculty In-Charge"
                 mb="1"
@@ -257,6 +366,69 @@ const CreateEvent = ({ children }) => {
             )}
 
             <FormControl mt={4}>
+              <FormLabel>Moderators</FormLabel>
+              <Input
+                placeholder="Add Moderators"
+                mb="1"
+                onChange={(e) => handleSearch3(e.target.value)}
+              />
+            </FormControl>
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedModerators.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete3(u)}
+                />
+              ))}
+            </Box>
+            {loading3 ? (
+              <Box textAlign="center">loading...</Box>
+            ) : (
+              searchResult3
+                ?.slice(0, 5)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup3(user)}
+                  />
+                ))
+            )}
+
+            <FormControl mt={4}>
+              <FormLabel>Volunteers</FormLabel>
+              <Input
+                placeholder="Add Volunteers"
+                mb="1"
+                onChange={(e) => handleSearch4(e.target.value)}
+              />
+            </FormControl>
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedVolunteers.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete4(u)}
+                />
+              ))}
+            </Box>
+            {loading4 ? (
+              <Box textAlign="center">loading...</Box>
+            ) : (
+              searchResult4
+                ?.slice(0, 5)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup4(user)}
+                  />
+                ))
+            )}
+
+            <FormControl isRequired mt={4}>
+              <FormLabel>Attendees</FormLabel>
               <Input
                 placeholder="Add Attendees"
                 mb="1"
@@ -286,7 +458,7 @@ const CreateEvent = ({ children }) => {
                 ))
             )}
 
-            <FormControl mt={4}>
+            <FormControl isRequired mt={4}>
               <FormLabel>Event Start Time</FormLabel>
               <Input
                 placeholder="Event Start Time"
@@ -297,7 +469,7 @@ const CreateEvent = ({ children }) => {
               />
             </FormControl>
 
-            <FormControl mt={4}>
+            <FormControl isRequired mt={4}>
               <FormLabel>Event End Time</FormLabel>
               <Input
                 placeholder="Event End Time"

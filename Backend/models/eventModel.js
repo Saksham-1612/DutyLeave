@@ -13,11 +13,25 @@ const eventSchema = new mongoose.Schema(
     },
     startTime: {
       type: Date,
+      required: true,
     },
     endTime: {
       type: Date,
+      required: true,
     },
     faculty: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    moderators: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    volunteers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

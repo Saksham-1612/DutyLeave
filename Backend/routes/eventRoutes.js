@@ -4,6 +4,8 @@ import {
   deleteEventController,
   getEventAttendees,
   getEventFaculty,
+  getEventModerators,
+  getEventVolunteers,
   getEventsController,
   getSingleEventController,
   updateEventController,
@@ -18,6 +20,10 @@ router.get("/get-events", getEventsController);
 router.get("/faculty", getEventFaculty);
 
 router.get("/attendees", getEventAttendees);
+
+router.get("/moderators", getEventModerators);
+
+router.get("/volunteers", getEventVolunteers);
 
 router.get("/get-event/:id", getSingleEventController);
 

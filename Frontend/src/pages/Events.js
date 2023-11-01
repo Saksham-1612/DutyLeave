@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { BACKEND_URL } from "../service/BackendUrl";
-import CreateEvent from "../components/events/CreateEvent";
+import CreateEvent from "../components/manage/CreateEvent";
 import axios from "axios";
 import UserBadgeItem from "../components/userItems/UserBadgeItem";
 import UserListItem from "../components/userItems/UserListItem";
@@ -27,6 +27,8 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [userDetails, setUserDetails] = useState([]);
   const [facultyDetails, setFacultyDetails] = useState([]);
+  const [moderatorDetails, setModeratorDetails] = useState([]);
+  const [volunteerDetails, setVolunteerDetails] = useState([]);
   const [title, setTitle] = useState();
   const [description, setDescription] = useState();
   const [startTime, setStartTime] = useState();
@@ -34,12 +36,20 @@ const Events = () => {
   const [eventId, setEventId] = useState();
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [loading3, setLoading3] = useState(false);
+  const [loading4, setLoading4] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [selectedModerators, setSelectedModerators] = useState([]);
+  const [selectedVolunteers, setSelectedVolunteers] = useState([]);
+  const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [searchResult1, setSearchResult1] = useState([]);
   const [searchResult2, setSearchResult2] = useState([]);
-  const [selectedAttendees, setSelectedAttendees] = useState([]);
+  const [searchResult3, setSearchResult3] = useState([]);
+  const [searchResult4, setSearchResult4] = useState([]);
   const [search1, setSearch1] = useState("");
   const [search2, setSearch2] = useState("");
+  const [search3, setSearch3] = useState("");
+  const [search4, setSearch4] = useState("");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -59,7 +69,14 @@ const Events = () => {
       const allFacultyIds = data?.events.flatMap((event) =>
         event.faculty.map((fac) => fac)
       );
-      // console.log(allFacultyIds);
+
+      const allModeratorsIds = data?.events.flatMap((event) =>
+        event.moderators.map((m) => m)
+      );
+
+      const allVolunteersIds = data?.events.flatMap((event) =>
+        event.volunteers.map((m) => m)
+      );
 
       const userData = await axios.get(`${BACKEND_URL}/api/event/attendees`, {
         params: { allUserIds },
@@ -76,12 +93,41 @@ const Events = () => {
         params: { allFacultyIds },
       });
 
+      const moderatorData = await axios.get(
+        `${BACKEND_URL}/api/event/moderators`,
+        {
+          params: { allModeratorsIds },
+        }
+      );
+
+      const volunteerData = await axios.get(
+        `${BACKEND_URL}/api/event/volunteers`,
+        {
+          params: { allVolunteersIds },
+        }
+      );
+
       setFacultyDetails(
         facultyData?.data?.facultyData.reduce((acc, faculty) => {
-          acc[faculty._id] = faculty; // Assuming 'id' is the user's ID
+          acc[faculty._id] = faculty;
           return acc;
         }, {})
       );
+
+      setModeratorDetails(
+        moderatorData?.data?.moderatorData.reduce((acc, moderator) => {
+          acc[moderator._id] = moderator;
+          return acc;
+        }, {})
+      );
+
+      setVolunteerDetails(
+        volunteerData?.data?.volunteerData.reduce((acc, volunteer) => {
+          acc[volunteer._id] = volunteer;
+          return acc;
+        }, {})
+      );
+
       setEvents(data?.events);
     } catch (error) {
       console.log(error);
@@ -164,6 +210,14 @@ const Events = () => {
       const facultyDetails = await Promise.all(facultyPromises);
       setSelectedFaculty(facultyDetails);
 
+      const moderatorPromises = eventD.moderators.map((m) => getUser(m));
+      const moderatorDetails = await Promise.all(moderatorPromises);
+      setSelectedModerators(moderatorDetails);
+
+      const volunteerPromises = eventD.volunteers.map((v) => getUser(v));
+      const volunteerDetails = await Promise.all(volunteerPromises);
+      setSelectedVolunteers(volunteerDetails);
+
       const attendeesPromises = eventD.attendees.map((a) => getUser(a.user));
       const attendeesDetails = await Promise.all(attendeesPromises);
       setSelectedAttendees(attendeesDetails);
@@ -180,7 +234,7 @@ const Events = () => {
     if (!dateString) return "";
 
     const date = new Date(dateString);
-    const formattedDate = date.toISOString().slice(0, 16); // Format to 'YYYY-MM-DDTHH:mm'
+    const formattedDate = date.toISOString().slice(0, 16);
     return formattedDate;
   };
 
@@ -220,7 +274,7 @@ const Events = () => {
       setLoading2(true);
 
       const { data } = await axios.get(
-        `${BACKEND_URL}/api/user/attendees?search=${search2}`
+        `${BACKEND_URL}/api/user/students?search=${search2}`
       );
       setLoading2(false);
       setSearchResult2(data);
@@ -238,10 +292,64 @@ const Events = () => {
     setLoading2(false);
   };
 
+  const handleSearch3 = async (query) => {
+    setSearch3(query);
+    if (!query) {
+      return;
+    }
+    try {
+      setLoading3(true);
+
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/user/students?search=${search3}`
+      );
+      setLoading3(false);
+      setSearchResult3(data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error occured!",
+        description: "Failed to search students!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+    setLoading3(false);
+  };
+
+  const handleSearch4 = async (query) => {
+    setSearch4(query);
+    if (!query) {
+      return;
+    }
+    try {
+      setLoading4(true);
+
+      const { data } = await axios.get(
+        `${BACKEND_URL}/api/user/students?search=${search4}`
+      );
+      setLoading4(false);
+      setSearchResult4(data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error occured!",
+        description: "Failed to search students!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+    setLoading4(false);
+  };
+
   const handleGroup1 = (userToAdd) => {
     if (selectedFaculty.some((user) => user._id === userToAdd._id)) {
       toast({
-        title: "Student is already added!",
+        title: "Faculty is already added!",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -266,6 +374,34 @@ const Events = () => {
     setSelectedAttendees([...selectedAttendees, userToAdd]);
   };
 
+  const handleGroup3 = (userToAdd) => {
+    if (selectedModerators.some((user) => user._id === userToAdd._id)) {
+      toast({
+        title: "Student is already added!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    setSelectedModerators([...selectedModerators, userToAdd]);
+  };
+
+  const handleGroup4 = (userToAdd) => {
+    if (selectedVolunteers.some((user) => user._id === userToAdd._id)) {
+      toast({
+        title: "Student is already added!",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    setSelectedVolunteers([...selectedVolunteers, userToAdd]);
+  };
+
   const handleDelete1 = (deletedUser) => {
     setSelectedFaculty(
       selectedFaculty.filter((sel) => sel._id !== deletedUser._id)
@@ -278,6 +414,18 @@ const Events = () => {
     );
   };
 
+  const handleDelete3 = (deletedUser) => {
+    setSelectedModerators(
+      selectedModerators.filter((sel) => sel._id !== deletedUser._id)
+    );
+  };
+
+  const handleDelete4 = (deletedUser) => {
+    setSelectedVolunteers(
+      selectedVolunteers.filter((sel) => sel._id !== deletedUser._id)
+    );
+  };
+
   const handleUpdate = async () => {
     try {
       const res = await axios.put(
@@ -287,8 +435,10 @@ const Events = () => {
           description: description,
           startTime: new Date(startTime).toISOString(),
           endTime: new Date(endTime).toISOString(),
-          faculty: JSON.stringify(selectedFaculty.map((a) => a._id)),
-          attendees: JSON.stringify(selectedAttendees.map((f) => f._id)),
+          faculty: JSON.stringify(selectedFaculty.map((f) => f._id)),
+          attendees: JSON.stringify(selectedAttendees.map((a) => a._id)),
+          moderators: JSON.stringify(selectedModerators.map((m) => m._id)),
+          volunteers: JSON.stringify(selectedVolunteers.map((v) => v._id)),
         }
       );
 
@@ -308,13 +458,17 @@ const Events = () => {
         setEndTime("");
         setSelectedFaculty([]);
         setSelectedAttendees([]);
+        setSelectedModerators([]);
+        setSelectedVolunteers([]);
         setSearchResult1([]);
         setSearchResult2([]);
+        setSearchResult3([]);
+        setSearchResult4([]);
       }
     } catch (error) {
       console.log(error);
       toast({
-        title: "Something Went Wrong",
+        title: "Something went wrong!",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -346,8 +500,8 @@ const Events = () => {
               display="flex"
               justifyContent="space-between"
             >
-              <span>Starts at {formatDate(e.startTime)}</span>
-              <span>Ends at {formatDate(e.endTime)}</span>
+              <span>Starts on {formatDate(e.startTime)}</span>
+              <span>Ends on {formatDate(e.endTime)}</span>
             </Text>
             <Text mb="20px" mt="40px" textAlign="center">
               Faculty In-charge
@@ -368,6 +522,50 @@ const Events = () => {
                 </Box>
               ))}
             </Box>
+            {e.moderators.length > 0 && (
+              <Text mb="20px" mt="40px" textAlign="center">
+                Moderators
+              </Text>
+            )}
+            <Box mb="50px">
+              {e.moderators.map((m, i) => (
+                <Box
+                  key={m}
+                  w="100%"
+                  display="flex"
+                  justifyContent="space-between"
+                  mt="10px"
+                >
+                  <p>
+                    {i + 1}. Moderator Name: {moderatorDetails[m]?.name}
+                  </p>
+                  <p>Reg. No.: {moderatorDetails[m]?.reg}</p>
+                </Box>
+              ))}
+            </Box>
+
+            {e.volunteers && e.volunteers.length > 0 && (
+              <Text mb="20px" mt="40px" textAlign="center">
+                Volunteers
+              </Text>
+            )}
+            <Box mb="50px">
+              {e.volunteers.map((v, i) => (
+                <Box
+                  key={v}
+                  w="100%"
+                  display="flex"
+                  justifyContent="space-between"
+                  mt="10px"
+                >
+                  <p>
+                    {i + 1}. Volunteer Name: {volunteerDetails[v]?.name}
+                  </p>
+                  <p>Reg. No.: {volunteerDetails[v]?.reg}</p>
+                </Box>
+              ))}
+            </Box>
+
             <Text mb="20px" mt="40px" textAlign="center">
               Attendees
             </Text>
@@ -473,6 +671,66 @@ const Events = () => {
                     key={user._id}
                     user={user}
                     handleFunction={() => handleGroup1(user)}
+                  />
+                ))
+            )}
+
+            <FormControl mt={4}>
+              <Input
+                placeholder="Add Moderators"
+                mb="1"
+                onChange={(e) => handleSearch3(e.target.value)}
+              />
+            </FormControl>
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedModerators.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete3(u)}
+                />
+              ))}
+            </Box>
+            {loading3 ? (
+              <Box textAlign="center">loading...</Box>
+            ) : (
+              searchResult3
+                ?.slice(0, 5)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup3(user)}
+                  />
+                ))
+            )}
+
+            <FormControl mt={4}>
+              <Input
+                placeholder="Add Volunteers"
+                mb="1"
+                onChange={(e) => handleSearch4(e.target.value)}
+              />
+            </FormControl>
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedVolunteers.map((u) => (
+                <UserBadgeItem
+                  key={u._id}
+                  user={u}
+                  handleFunction={() => handleDelete4(u)}
+                />
+              ))}
+            </Box>
+            {loading4 ? (
+              <Box textAlign="center">loading...</Box>
+            ) : (
+              searchResult4
+                ?.slice(0, 5)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup4(user)}
                   />
                 ))
             )}

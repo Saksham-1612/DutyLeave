@@ -68,7 +68,7 @@ export const loginController = async (req, res) => {
     }
 
     const user = await userModel.findOne({ reg });
-    console.log(user);
+    // console.log(user);
     if (!user) {
       return res.status(401).send({
         success: false,
@@ -202,6 +202,23 @@ export const getAllUsers = async (req, res) => {
   const keyword = req.query.search
     ? {
         $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const users = await userModel
+    .find(keyword)
+    .find({ _id: { $ne: req.user._id } })
+    .select("-password");
+  res.send(users);
+};
+
+export const getAllStudents = async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
           { reg: { $regex: req.query.search, $options: "i" } },
           { email: { $regex: req.query.search, $options: "i" } },
         ],
@@ -260,38 +277,44 @@ export const getSingleUser = async (req, res) => {
 
 export const updateRoleController = async (req, res) => {
   try {
-    const { _id } = req.user;
+    const superAdmin = req.user;
 
-    const user = await userModel.findById(_id);
+    // console.log(superAdmin);
 
-    if (!user) {
-      return res.status(401).send({
+    if (superAdmin.role !== "SuperAdmin") {
+      return res.status(203).send({
         success: false,
-        message: "User not found!",
+        message: "Unauthorized access!",
       });
     }
-    console.log(user);
-    if (user.role !== "SuperAdmin") {
-      return res.status(403).send({ msg: "Unauthorized access" });
-    }
-    // registration of user to update role
-    // role to be done
+
     const { reg, role } = req.body;
-    console.log(reg, role);
-    const userToBeUpdated = await userModel.findOne({ reg: reg });
-    console.log(userToBeUpdated);
+
+    // console.log(reg, role);
+
+    const userToBeUpdated = await userModel.findOne({ reg });
+
+    // console.log(userToBeUpdated);
+
     if (!userToBeUpdated) {
-      return res.status(404).send({
+      return res.status(201).send({
         success: false,
-        message: "User to be updated not found",
+        message: "User with this registration no. doesn't exist!",
       });
     }
     userToBeUpdated.role = role;
     await userToBeUpdated.save();
 
-    return res.status(200).send({ msg: "User Role updated successfully" });
+    res.status(200).send({
+      success: true,
+      message: "User Role updated successfully!",
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send({ msg: "Error updating user", error: error });
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error updating user!",
+      error,
+    });
   }
 };

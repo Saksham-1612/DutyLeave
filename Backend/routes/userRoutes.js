@@ -2,6 +2,7 @@ import express from "express";
 import {
   forgotPasswordController,
   getAllFaculty,
+  getAllStudents,
   getAllUsers,
   getSingleUser,
   loginController,
@@ -15,9 +16,11 @@ const router = express.Router();
 
 router.get("/get-user/:id", getSingleUser);
 
+router.get("/", protect, getAllUsers);
+
 router.get("/faculty", protect, getAllFaculty);
 
-router.get("/attendees", protect, getAllUsers);
+router.get("/students", protect, getAllStudents);
 
 router.post("/login", loginController);
 

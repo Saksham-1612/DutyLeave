@@ -1,51 +1,67 @@
 import eventModel from "../models/eventModel.js";
 import userModel from "../models/userModel.js";
 
-//create event
 export const createEventController = async (req, res) => {
   try {
-    const { title, description, startTime, endTime } = req.body;
+    const {
+      title,
+      description,
+      startTime,
+      endTime,
+      attendees,
+      faculty,
+      moderators,
+      volunteers,
+    } = req.body;
 
-    if (!title || !description || !startTime || !endTime) {
-      return res.status(400).send({
+    if (
+      !title ||
+      !description ||
+      !startTime ||
+      !endTime ||
+      !attendees ||
+      !faculty
+    ) {
+      return res.status(400).json({
         success: false,
-        message: "All the fields are mandatory!",
+        message: "Kindly fill all the mandatory fields!",
       });
     }
 
-    const attendees = JSON.parse(req.body.attendees);
-    const faculty = JSON.parse(req.body.faculty);
+    const parsedModerators = moderators ? JSON.parse(moderators) : [];
+    const parsedVolunteers = volunteers ? JSON.parse(volunteers) : [];
 
     const event = new eventModel({
       title,
       description,
       startTime,
       endTime,
-      faculty: faculty,
+      faculty: JSON.parse(faculty),
+      moderators: parsedModerators,
+      volunteers: parsedVolunteers,
     });
 
-    for (const attendeeId of attendees) {
+    for (const attendeeId of JSON.parse(attendees)) {
       if (attendeeId) {
         event.attendees.push({
           user: attendeeId,
-          // attended: attendee.attended || false,
         });
       }
     }
 
     await event.save();
 
-    res.status(200).send({
+    return res.status(201).json({
       success: true,
       message: "Event created successfully!",
       event,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
+    console.error(error);
+    return res.status(500).json({
       success: false,
       message: "Error creating event!",
-      error,
+      error: error.message,
     });
   }
 };
@@ -70,7 +86,53 @@ export const getEventFaculty = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Failed to fetch faculties details!",
+      message: "Failed to fetch faculty details!",
+      error,
+    });
+  }
+};
+
+export const getEventModerators = async (req, res) => {
+  try {
+    const { allModeratorsIds } = req.query;
+
+    const moderatorData = await userModel
+      .find({ _id: { $in: allModeratorsIds } })
+      .select("-password");
+
+    res.status(200).send({
+      success: true,
+      message: "Moderator details fetched successfully!",
+      moderatorData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch moderator details!",
+      error,
+    });
+  }
+};
+
+export const getEventVolunteers = async (req, res) => {
+  try {
+    const { allVolunteersIds } = req.query;
+
+    const volunteerData = await userModel
+      .find({ _id: { $in: allVolunteersIds } })
+      .select("-password");
+
+    res.status(200).send({
+      success: true,
+      message: "Volunter details fetched successfully!",
+      volunteerData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch volunteer details!",
       error,
     });
   }
@@ -149,11 +211,11 @@ export const getSingleEventController = async (req, res) => {
         message: "No id is there!",
       });
     }
-    console.log(eventId);
+    // console.log(eventId);
 
     const eventData = await eventModel.findById(eventId);
 
-    console.log(eventData);
+    // console.log(eventData);
 
     res.status(200).send({
       success: true,
@@ -171,7 +233,15 @@ export const getSingleEventController = async (req, res) => {
 
 export const updateEventController = async (req, res) => {
   try {
-    const { title, description, startTime, endTime, faculty } = req.body;
+    const {
+      title,
+      description,
+      startTime,
+      endTime,
+      faculty,
+      moderators,
+      volunteers,
+    } = req.body;
 
     const updatedEvent = {
       title,
@@ -179,6 +249,8 @@ export const updateEventController = async (req, res) => {
       startTime,
       endTime,
       faculty: JSON.parse(faculty),
+      moderators: JSON.parse(moderators),
+      volunteers: JSON.parse(volunteers),
       attendees: [],
     };
 
