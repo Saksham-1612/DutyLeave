@@ -34,22 +34,18 @@ const Login = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
+      // const config = {
+      //   headers: {
+      //     "Content-type": "application/json",
+      //   },
+      // };
 
-      const res = await axios.post(
-        `${BACKEND_URL}/api/user/login`,
-        {
-          reg,
-          password,
-        },
-        config
-      );
+      const res = await axios.post(`${BACKEND_URL}/api/user/login`, {
+        reg,
+        password,
+      });
 
-      console.log(res.data);
+      // console.log(res.data);
 
       if (res && res.data.success) {
         toast({
@@ -66,7 +62,7 @@ const Login = () => {
         });
         navigate("/dashboard");
         localStorage.setItem("userInfo", JSON.stringify(res.data));
-        console.log(res.data.user);
+        // console.log(res.data.user);
       } else {
         toast({
           title: res.data.message,
@@ -124,6 +120,17 @@ const Login = () => {
         isLoading={loading}
       >
         Sign In
+      </Button>
+      <Button
+        variant="solid"
+        colorScheme="green"
+        w="100%"
+        onClick={() => {
+          setReg("11111");
+          setPassword("12345");
+        }}
+      >
+        Login As Super Admin
       </Button>
       <Button
         variant="solid"
