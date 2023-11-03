@@ -15,12 +15,12 @@ const Dashboard = () => {
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-    console.log(userInfo);
+    // console.log(userInfo);
 
     if (!userInfo) {
       navigate("/");
     }
-    console.log(auth);
+    // console.log(auth);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -43,16 +43,18 @@ const Dashboard = () => {
               </div>
             </UpdateRole>
           )}
-          {auth?.user?.role != "SuperAdmin" && (
-            <div
-              onClick={() => {
-                navigate("/events");
-              }}
-              className=" rounded-full transition-all duration-300 hover:scale-105 cursor-pointer  bg-gradient-to-tl px-5 py-1 font-bold from-red-500 to-blue-900"
-            >
-              Events
-            </div>
-          )}
+          {auth?.user?.role !== "SuperAdmin" &&
+            auth?.user?.role !== "student" && (
+              <div
+                onClick={() => {
+                  navigate("/events");
+                }}
+                className="rounded-full transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-tl px-5 py-1 font-bold from-red-500 to-blue-900"
+              >
+                Events
+              </div>
+            )}
+
           <div
             onClick={handleLogout}
             className=" rounded-full transition-all duration-300 hover:scale-105 cursor-pointer  bg-gradient-to-tl px-5 py-1 font-bold from-red-500 to-blue-900"
@@ -73,7 +75,7 @@ const Dashboard = () => {
           <>
             <Box>
               <Text>Admin Panel</Text>
-              <Scanner />
+              {/* <Scanner /> */}
             </Box>
           </>
         ) : (

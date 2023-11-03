@@ -294,3 +294,49 @@ export const updateEventController = async (req, res) => {
     });
   }
 };
+
+export const markAttendanceController = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    console.log(eventId);
+
+    const studentId = req.body.studentId;
+    console.log(studentId);
+
+    const event = await eventModel.findById(eventId);
+
+    if (!event) {
+      return res.status(201).send({
+        success: false,
+        message: "Event not found!",
+      });
+    }
+
+    const attendeeIndex = event.attendees.findIndex(
+      (attendee) => attendee.user.toString() === studentId
+    );
+
+    if (attendeeIndex === -1) {
+      return res.status(203).send({
+        success: false,
+        message: "Student not found in the attendees list for this event!",
+      });
+    }
+
+    event.attendees[attendeeIndex].attended = true;
+
+    await event.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Attendance marked!",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error marking attendance!",
+      error,
+    });
+  }
+};

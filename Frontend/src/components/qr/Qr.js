@@ -8,7 +8,7 @@ export default function Qr() {
   useEffect(() => {
     if (userInfo && qrCodeRef.current) {
       // Generate the QR code and set it in the component's state
-      qrCodeRef.current.makeCode(JSON.stringify(userInfo));
+      qrCodeRef.current.makeCode(JSON.stringify(userInfo.user));
     }
   }, [userInfo]);
 
@@ -19,7 +19,7 @@ export default function Qr() {
         <div className="padding">
           {userInfo ? (
             <div>
-              <QRCode ref={qrCodeRef} value={JSON.stringify(userInfo)} />
+              <QRCode ref={qrCodeRef} value={JSON.stringify(userInfo.user)} />
             </div>
           ) : (
             <p>No user information found.</p>
