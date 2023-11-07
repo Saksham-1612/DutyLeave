@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
-export default function Scanner() {
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-  console.log(userInfo);
-
+const Scanner = ({ onScanResult }) => {
   const [result, setResult] = useState(null);
 
   useEffect(() => {
@@ -19,6 +16,7 @@ export default function Scanner() {
     const success = (decodedText) => {
       decodedText = JSON.parse(decodedText);
       setResult(decodedText);
+      onScanResult(decodedText);
     };
 
     const error = (err) => {
@@ -37,7 +35,7 @@ export default function Scanner() {
             <h2> Success </h2>
             <p>{result.name}</p>
             <p>{result.reg}</p>
-            <p>{result.email}</p>
+            <p>{result._id}</p>
           </div>
         ) : (
           <div
@@ -48,4 +46,6 @@ export default function Scanner() {
       </div>
     </>
   );
-}
+};
+
+export default Scanner;

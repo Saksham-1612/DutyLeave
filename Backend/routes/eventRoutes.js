@@ -8,6 +8,7 @@ import {
   getEventVolunteers,
   getEventsController,
   getSingleEventController,
+  markAttendanceController,
   updateEventController,
 } from "../controllers/eventController.js";
 
@@ -30,5 +31,7 @@ router.get("/get-event/:id", getSingleEventController);
 router.put("/update-event/:id", updateEventController);
 
 router.delete("/delete-event/:id", deleteEventController);
+
+router.post("/:id/mark-attendance", markAttendanceController);
 
 export default router;

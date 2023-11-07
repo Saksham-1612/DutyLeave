@@ -77,7 +77,7 @@ const Signup = () => {
 
         navigate("/dashboard");
         localStorage.setItem("userInfo", JSON.stringify(res.data));
-        console.log(res.data.user);
+        // console.log(res.data.user);
       } else {
         toast({
           title: res.data.message,

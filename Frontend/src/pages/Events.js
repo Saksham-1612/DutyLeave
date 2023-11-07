@@ -22,6 +22,7 @@ import CreateEvent from "../components/manage/CreateEvent";
 import axios from "axios";
 import UserBadgeItem from "../components/userItems/UserBadgeItem";
 import UserListItem from "../components/userItems/UserListItem";
+import MarkAttendance from "../components/manage/MarkAttendance";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -592,6 +593,7 @@ const Events = () => {
               gap="10px"
               mb="20px"
             >
+              <MarkAttendance eventId={e._id} />
               <Button
                 variant="solid"
                 colorScheme="blue"
