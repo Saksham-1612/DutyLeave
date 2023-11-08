@@ -23,6 +23,7 @@ import axios from "axios";
 import UserBadgeItem from "../components/userItems/UserBadgeItem";
 import UserListItem from "../components/userItems/UserListItem";
 import MarkAttendance from "../components/manage/MarkAttendance";
+import { useAuth } from "../context/GlobalProvider";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -53,6 +54,8 @@ const Events = () => {
   const [search4, setSearch4] = useState("");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [auth, setAuth] = useAuth();
 
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
@@ -222,6 +225,9 @@ const Events = () => {
       const attendeesPromises = eventD.attendees.map((a) => getUser(a.user));
       const attendeesDetails = await Promise.all(attendeesPromises);
       setSelectedAttendees(attendeesDetails);
+
+      // setFRole(eventD.faculty.includes(auth?.user?._id));
+      // setMRole(eventD.moderators.includes(auth?.user?._id));
 
       // console.log(selectedFaculty);
       // console.log(eventD.startTime);
@@ -486,135 +492,168 @@ const Events = () => {
       minH="100vh"
       pt="50px"
     >
-      <CreateEvent />
+      {auth?.user?.role === "admin" && <CreateEvent />}
       <Box w="50%">
         <Text fontWeight="900" fontSize="20px" textAlign="center" mb="30px">
           Events
         </Text>
-        {events.map((e) => (
-          <Box key={e._id} mb="50px">
-            <h3>Event Name: {e.title}</h3>
-            <p>Description: {e.description}</p>
-            <Text
-              mt="20px"
-              w="100%"
-              display="flex"
-              justifyContent="space-between"
-            >
-              <span>Starts on {formatDate(e.startTime)}</span>
-              <span>Ends on {formatDate(e.endTime)}</span>
-            </Text>
-            <Text mb="20px" mt="40px" textAlign="center">
-              Faculty In-charge
-            </Text>
-            <Box mb="50px">
-              {e.faculty.map((f, i) => (
-                <Box
-                  key={f}
-                  w="100%"
-                  display="flex"
-                  justifyContent="space-between"
-                  mt="10px"
-                >
-                  <p>
-                    {i + 1}. Faculty Name: {facultyDetails[f]?.name}
-                  </p>
-                  <p>UID: {facultyDetails[f]?.reg}</p>
-                </Box>
-              ))}
-            </Box>
-            {e.moderators.length > 0 && (
-              <Text mb="20px" mt="40px" textAlign="center">
-                Moderators
-              </Text>
-            )}
-            <Box mb="50px">
-              {e.moderators.map((m, i) => (
-                <Box
-                  key={m}
-                  w="100%"
-                  display="flex"
-                  justifyContent="space-between"
-                  mt="10px"
-                >
-                  <p>
-                    {i + 1}. Moderator Name: {moderatorDetails[m]?.name}
-                  </p>
-                  <p>Reg. No.: {moderatorDetails[m]?.reg}</p>
-                </Box>
-              ))}
-            </Box>
+        {events.map((e) => {
+          const isUserAttending = e.attendees.some(
+            (attendee) => attendee.user === auth?.user?._id
+          );
+          const isUserFaculty = e.faculty.includes(auth?.user?._id);
+          const isUserModerator = e.moderators.includes(auth?.user?._id);
+          const isUserVolunteer = e.volunteers.includes(auth?.user?._id);
+          const isUserAdmin = auth?.user?.role === "admin";
 
-            {e.volunteers && e.volunteers.length > 0 && (
-              <Text mb="20px" mt="40px" textAlign="center">
-                Volunteers
-              </Text>
-            )}
-            <Box mb="50px">
-              {e.volunteers.map((v, i) => (
-                <Box
-                  key={v}
+          if (
+            isUserAttending ||
+            isUserFaculty ||
+            isUserModerator ||
+            isUserVolunteer ||
+            isUserAdmin
+          ) {
+            return (
+              <Box key={e._id} mb="50px">
+                <h3>Event Name: {e.title}</h3>
+                <p>Description: {e.description}</p>
+                <Text
+                  mt="20px"
                   w="100%"
                   display="flex"
                   justifyContent="space-between"
-                  mt="10px"
                 >
-                  <p>
-                    {i + 1}. Volunteer Name: {volunteerDetails[v]?.name}
-                  </p>
-                  <p>Reg. No.: {volunteerDetails[v]?.reg}</p>
+                  <span>Starts on {formatDate(e.startTime)}</span>
+                  <span>Ends on {formatDate(e.endTime)}</span>
+                </Text>
+                <Text mb="20px" mt="40px" textAlign="center">
+                  Faculty In-charge
+                </Text>
+                <Box mb="50px">
+                  {e.faculty.map((f, i) => (
+                    <Box
+                      key={f}
+                      w="100%"
+                      display="flex"
+                      justifyContent="space-between"
+                      mt="10px"
+                    >
+                      <p>
+                        {i + 1}. Faculty Name: {facultyDetails[f]?.name}
+                      </p>
+                      <p>UID: {facultyDetails[f]?.reg}</p>
+                    </Box>
+                  ))}
                 </Box>
-              ))}
-            </Box>
+                {e.moderators.length > 0 && (
+                  <Text mb="20px" mt="40px" textAlign="center">
+                    Moderators
+                  </Text>
+                )}
+                <Box mb="50px">
+                  {e.moderators.map((m, i) => (
+                    <Box
+                      key={m}
+                      w="100%"
+                      display="flex"
+                      justifyContent="space-between"
+                      mt="10px"
+                    >
+                      <p>
+                        {i + 1}. Moderator Name: {moderatorDetails[m]?.name}
+                      </p>
+                      <p>Reg. No.: {moderatorDetails[m]?.reg}</p>
+                    </Box>
+                  ))}
+                </Box>
 
-            <Text mb="20px" mt="40px" textAlign="center">
-              Attendees
-            </Text>
-            <Box mb="30px">
-              {e.attendees.map((a, i) => (
-                <Box
-                  key={a._id}
-                  w="100%"
-                  display="flex"
-                  justifyContent="space-between"
-                  mt="10px"
-                >
-                  <p>
-                    {i + 1}. Name: {userDetails[a.user]?.name}
-                  </p>
-                  <p>Reg. No.: {userDetails[a.user]?.reg}</p>
+                {e.volunteers && e.volunteers.length > 0 && (
+                  <Text mb="20px" mt="40px" textAlign="center">
+                    Volunteers
+                  </Text>
+                )}
+                <Box mb="50px">
+                  {e.volunteers.map((v, i) => (
+                    <Box
+                      key={v}
+                      w="100%"
+                      display="flex"
+                      justifyContent="space-between"
+                      mt="10px"
+                    >
+                      <p>
+                        {i + 1}. Volunteer Name: {volunteerDetails[v]?.name}
+                      </p>
+                      <p>Reg. No.: {volunteerDetails[v]?.reg}</p>
+                    </Box>
+                  ))}
                 </Box>
-              ))}
-            </Box>
-            <Box
-              w="100%"
-              display="flex"
-              justifyContent="center"
-              gap="10px"
-              mb="20px"
-            >
-              <MarkAttendance eventId={e._id} />
-              <Button
-                variant="solid"
-                colorScheme="blue"
-                onClick={() => {
-                  onOpen();
-                  getSingleEvent(e._id);
-                }}
-              >
-                Update
-              </Button>
-              <Button
-                variant="solid"
-                colorScheme="red"
-                onClick={() => handleDeleteEvent(e._id)}
-              >
-                Delete
-              </Button>
-            </Box>
-            <hr></hr>
-          </Box>
-        ))}
+
+                {!isUserAttending && (
+                  <>
+                    <Text mb="20px" mt="40px" textAlign="center">
+                      Attendees
+                    </Text>
+                    <Box mb="30px">
+                      {e.attendees.map((a, i) => (
+                        <Box
+                          key={a._id}
+                          w="100%"
+                          display="flex"
+                          justifyContent="space-between"
+                          mt="10px"
+                        >
+                          <p>
+                            {i + 1}. Name: {userDetails[a.user]?.name}
+                          </p>
+                          <p>Reg. No.: {userDetails[a.user]?.reg}</p>
+                        </Box>
+                      ))}
+                    </Box>
+                  </>
+                )}
+                {isUserAttending ? (
+                  <></>
+                ) : (
+                  <Box
+                    w="100%"
+                    display="flex"
+                    justifyContent="center"
+                    gap="10px"
+                    mb="20px"
+                  >
+                    <MarkAttendance eventId={e._id} />
+
+                    {isUserAdmin || isUserFaculty || isUserModerator ? (
+                      <Button
+                        variant="solid"
+                        colorScheme="blue"
+                        onClick={() => {
+                          onOpen();
+                          getSingleEvent(e._id);
+                        }}
+                      >
+                        Update
+                      </Button>
+                    ) : null}
+                    {isUserAdmin && (
+                      <Button
+                        variant="solid"
+                        colorScheme="red"
+                        onClick={() => handleDeleteEvent(e._id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </Box>
+                )}
+                <hr></hr>
+              </Box>
+            );
+          } else {
+            return null;
+          }
+        })}
       </Box>
 
       <Modal
@@ -628,83 +667,93 @@ const Events = () => {
           <ModalHeader>Update Event</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl>
-              <FormLabel>Title</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </FormControl>
-
-            <FormControl mt={4}>
-              <FormLabel>Description</FormLabel>
-              <Textarea
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </FormControl>
-
-            <FormControl mt={4}>
-              <Input
-                placeholder="Add Faculty In-Charge"
-                mb="1"
-                onChange={(e) => handleSearch1(e.target.value)}
-              />
-            </FormControl>
-            <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedFaculty.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete1(u)}
-                />
-              ))}
-            </Box>
-            {loading1 ? (
-              <Box textAlign="center">loading...</Box>
-            ) : (
-              searchResult1
-                ?.slice(0, 5)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroup1(user)}
+            {auth?.user?.role === "admin" && (
+              <>
+                <FormControl>
+                  <FormLabel>Title</FormLabel>
+                  <Input
+                    ref={initialRef}
+                    placeholder="Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
-                ))
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Description</FormLabel>
+                  <Textarea
+                    placeholder="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <Input
+                    placeholder="Add Faculty In-Charge"
+                    mb="1"
+                    onChange={(e) => handleSearch1(e.target.value)}
+                  />
+                </FormControl>
+                <Box w="100%" display="flex" flexWrap="wrap">
+                  {selectedFaculty.map((u) => (
+                    <UserBadgeItem
+                      key={u._id}
+                      user={u}
+                      handleFunction={() => handleDelete1(u)}
+                    />
+                  ))}
+                </Box>
+                {loading1 ? (
+                  <Box textAlign="center">loading...</Box>
+                ) : (
+                  searchResult1
+                    ?.slice(0, 5)
+                    .map((user) => (
+                      <UserListItem
+                        key={user._id}
+                        user={user}
+                        handleFunction={() => handleGroup1(user)}
+                      />
+                    ))
+                )}
+              </>
             )}
 
-            <FormControl mt={4}>
-              <Input
-                placeholder="Add Moderators"
-                mb="1"
-                onChange={(e) => handleSearch3(e.target.value)}
-              />
-            </FormControl>
-            <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedModerators.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete3(u)}
-                />
-              ))}
-            </Box>
-            {loading3 ? (
-              <Box textAlign="center">loading...</Box>
-            ) : (
-              searchResult3
-                ?.slice(0, 5)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroup3(user)}
+            {auth?.user?.role === "admin" || auth?.user?.role === "faculty" ? (
+              <>
+                <FormControl mt={4}>
+                  <Input
+                    placeholder="Add Moderators"
+                    mb="1"
+                    onChange={(e) => handleSearch3(e.target.value)}
                   />
-                ))
+                </FormControl>
+                <Box w="100%" display="flex" flexWrap="wrap">
+                  {selectedModerators.map((u) => (
+                    <UserBadgeItem
+                      key={u._id}
+                      user={u}
+                      handleFunction={() => handleDelete3(u)}
+                    />
+                  ))}
+                </Box>
+                {loading3 ? (
+                  <Box textAlign="center">loading...</Box>
+                ) : (
+                  searchResult3
+                    ?.slice(0, 5)
+                    .map((user) => (
+                      <UserListItem
+                        key={user._id}
+                        user={user}
+                        handleFunction={() => handleGroup3(user)}
+                      />
+                    ))
+                )}
+              </>
+            ) : (
+              <></>
             )}
 
             <FormControl mt={4}>
@@ -737,57 +786,67 @@ const Events = () => {
                 ))
             )}
 
-            <FormControl mt={4}>
-              <Input
-                placeholder="Add Attendees"
-                mb="1"
-                onChange={(e) => handleSearch2(e.target.value)}
-              />
-            </FormControl>
-            <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedAttendees.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete2(u)}
-                />
-              ))}
-            </Box>
-            {loading2 ? (
-              <Box textAlign="center">loading...</Box>
-            ) : (
-              searchResult2
-                ?.slice(0, 5)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroup2(user)}
+            {auth?.user?.role === "admin" || auth?.user?.role === "faculty" ? (
+              <>
+                <FormControl mt={4}>
+                  <Input
+                    placeholder="Add Attendees"
+                    mb="1"
+                    onChange={(e) => handleSearch2(e.target.value)}
                   />
-                ))
+                </FormControl>
+                <Box w="100%" display="flex" flexWrap="wrap">
+                  {selectedAttendees.map((u) => (
+                    <UserBadgeItem
+                      key={u._id}
+                      user={u}
+                      handleFunction={() => handleDelete2(u)}
+                    />
+                  ))}
+                </Box>
+                {loading2 ? (
+                  <Box textAlign="center">loading...</Box>
+                ) : (
+                  searchResult2
+                    ?.slice(0, 5)
+                    .map((user) => (
+                      <UserListItem
+                        key={user._id}
+                        user={user}
+                        handleFunction={() => handleGroup2(user)}
+                      />
+                    ))
+                )}
+              </>
+            ) : (
+              <></>
             )}
 
-            <FormControl mt={4}>
-              <FormLabel>Event Start Time</FormLabel>
-              <Input
-                placeholder="Event Start Time"
-                size="md"
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </FormControl>
+            {auth?.user?.role === "admin" && (
+              <>
+                <FormControl mt={4}>
+                  <FormLabel>Event Start Time</FormLabel>
+                  <Input
+                    placeholder="Event Start Time"
+                    size="md"
+                    type="datetime-local"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                  />
+                </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Event End Time</FormLabel>
-              <Input
-                placeholder="Event End Time"
-                size="md"
-                type="datetime-local"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </FormControl>
+                <FormControl mt={4}>
+                  <FormLabel>Event End Time</FormLabel>
+                  <Input
+                    placeholder="Event End Time"
+                    size="md"
+                    type="datetime-local"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                  />
+                </FormControl>
+              </>
+            )}
           </ModalBody>
 
           <ModalFooter>

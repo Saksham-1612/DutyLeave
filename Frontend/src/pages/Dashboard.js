@@ -43,17 +43,16 @@ const Dashboard = () => {
               </div>
             </UpdateRole>
           )}
-          {auth?.user?.role !== "SuperAdmin" &&
-            auth?.user?.role !== "student" && (
-              <div
-                onClick={() => {
-                  navigate("/events");
-                }}
-                className="rounded-full transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-tl px-5 py-1 font-bold from-red-500 to-blue-900"
-              >
-                Events
-              </div>
-            )}
+          {auth?.user?.role !== "SuperAdmin" && (
+            <div
+              onClick={() => {
+                navigate("/events");
+              }}
+              className="rounded-full transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-tl px-5 py-1 font-bold from-red-500 to-blue-900"
+            >
+              Events
+            </div>
+          )}
 
           <div
             onClick={handleLogout}

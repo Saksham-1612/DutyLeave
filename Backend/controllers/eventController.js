@@ -30,6 +30,29 @@ export const createEventController = async (req, res) => {
 
     const parsedModerators = moderators ? JSON.parse(moderators) : [];
     const parsedVolunteers = volunteers ? JSON.parse(volunteers) : [];
+    const parsedAttendees = JSON.parse(attendees);
+
+    const duplicateVol = parsedAttendees.some((attendee) =>
+      parsedVolunteers.includes(attendee)
+    );
+
+    if (duplicateVol) {
+      return res.status(201).json({
+        success: false,
+        message: "A attendee cannot be a volunteer in an event!",
+      });
+    }
+
+    const duplicateMod = parsedAttendees.some((attendee) =>
+      parsedModerators.includes(attendee)
+    );
+
+    if (duplicateMod) {
+      return res.status(201).json({
+        success: false,
+        message: "A attendee cannot be a moderator in an event!",
+      });
+    }
 
     const event = new eventModel({
       title,
@@ -41,7 +64,7 @@ export const createEventController = async (req, res) => {
       volunteers: parsedVolunteers,
     });
 
-    for (const attendeeId of JSON.parse(attendees)) {
+    for (const attendeeId of parsedAttendees) {
       if (attendeeId) {
         event.attendees.push({
           user: attendeeId,
@@ -298,12 +321,29 @@ export const updateEventController = async (req, res) => {
 export const markAttendanceController = async (req, res) => {
   try {
     const eventId = req.params.id;
-    console.log(eventId);
+    // console.log(eventId);
 
     const studentId = req.body.studentId;
-    console.log(studentId);
+    // console.log(studentId);
+
+    const marker = req.user;
 
     const event = await eventModel.findById(eventId);
+
+    const isUserModerator = event.moderators.includes(req.user._id.toString());
+    const isUserVolunteer = event.volunteers.includes(req.user._id.toString());
+
+    if (
+      marker.role !== "admin" &&
+      marker.role !== "faculty" &&
+      !isUserModerator &&
+      !isUserVolunteer
+    ) {
+      return res.status(202).send({
+        success: false,
+        message: "You are unauthorized to perform this action!",
+      });
+    }
 
     if (!event) {
       return res.status(201).send({
