@@ -147,13 +147,35 @@ const Login = () => {
         variant="solid"
         colorScheme="red"
         w="100%"
-        mb="15px"
         onClick={() => {
           setReg("12345");
           setPassword("12345");
         }}
       >
         Login As Faculty
+      </Button>
+      <Button
+        variant="solid"
+        colorScheme="red"
+        w="100%"
+        onClick={() => {
+          setReg("12424122");
+          setPassword("12345");
+        }}
+      >
+        Login As Moderator In An Event
+      </Button>
+      <Button
+        variant="solid"
+        colorScheme="red"
+        w="100%"
+        mb="15px"
+        onClick={() => {
+          setReg("16578324");
+          setPassword("12345");
+        }}
+      >
+        Login As Volunteer In An Event
       </Button>
       <Link to="/forgot-password" className="f-p">
         Forgot Password?

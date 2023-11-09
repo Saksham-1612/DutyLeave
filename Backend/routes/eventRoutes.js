@@ -12,6 +12,8 @@ import {
   updateEventController,
 } from "../controllers/eventController.js";
 
+import { protect } from "../middlewares/authMiddleware.js";
+
 const router = express.Router();
 
 router.post("/create-event", createEventController);
@@ -32,6 +34,6 @@ router.put("/update-event/:id", updateEventController);
 
 router.delete("/delete-event/:id", deleteEventController);
 
-router.post("/:id/mark-attendance", markAttendanceController);
+router.post("/:id/mark-attendance", protect, markAttendanceController);
 
 export default router;
