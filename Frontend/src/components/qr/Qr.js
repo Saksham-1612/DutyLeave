@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import QRCode from "qrcode.react";
+import { Box, Text } from "@chakra-ui/react";
 
 export default function Qr() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -13,19 +14,21 @@ export default function Qr() {
   }, [userInfo]);
 
   return (
-    <div>
-      <h1>This is QR CODE</h1>
-      <div>
-        <div className="padding">
-          {userInfo ? (
-            <div>
-              <QRCode ref={qrCodeRef} value={JSON.stringify(userInfo.user)} />
-            </div>
-          ) : (
-            <p>No user information found.</p>
-          )}
-        </div>
-      </div>
-    </div>
+    <Box textAlign="center" mt="8">
+      <Text fontSize="xl" mb="4">
+        This is QR CODE
+      </Text>
+      <Box p="4" display={"flex"} alignItems={"center"}>
+        {userInfo ? (
+          <QRCode
+            ref={qrCodeRef}
+            value={JSON.stringify(userInfo.user)}
+            size={320}
+          />
+        ) : (
+          <Text>No user information found.</Text>
+        )}
+      </Box>
+    </Box>
   );
 }
