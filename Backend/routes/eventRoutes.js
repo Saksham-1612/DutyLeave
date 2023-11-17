@@ -10,6 +10,7 @@ import {
   getSingleEventController,
   markAttendanceController,
   updateEventController,
+  onSpotRegistration,
 } from "../controllers/eventController.js";
 
 import { protect } from "../middlewares/authMiddleware.js";
@@ -35,5 +36,7 @@ router.put("/update-event/:id", updateEventController);
 router.delete("/delete-event/:id", deleteEventController);
 
 router.post("/:id/mark-attendance", protect, markAttendanceController);
+
+router.post("/onspot-register/:eventId", onSpotRegistration);
 
 export default router;

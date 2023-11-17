@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Events from "./pages/Events";
+import OnSpot from "./pages/onSpot";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/onspot" element={<OnSpot />} />
       </Routes>
     </>
   );
