@@ -380,3 +380,50 @@ export const markAttendanceController = async (req, res) => {
     });
   }
 };
+
+export const onSpotRegistration = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { userId } = req.body;
+    console.log("eventId: " + eventId);
+    console.log("userId: " + userId);
+
+    const event = await eventModel.findById(eventId);
+    if (!event) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Event not found" });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const isRegistered = event.attendees.some(
+      (attendee) => attendee.user.toString() === userId
+    );
+    if (isRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already registered for the event",
+      });
+    }
+
+    event.attendees.push({ user: userId });
+    await event.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "User registered for the event", event });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error registering user for the event",
+      error: error.message,
+    });
+  }
+};
