@@ -52,21 +52,33 @@ const OnSpot = () => {
         );
       };
 
-      await axios.post(`${BACKEND_URL}/api/event/onspot-register/${eventId}`, {
-        userId,
-      });
+      const res = await axios.post(
+        `${BACKEND_URL}/api/event/onspot-register/${eventId}`,
+        {
+          userId,
+        }
+      );
 
-      toast({
-        title: "Registration Successful",
-        description: "You have successfully registered for the event.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      navigate("/");
+      if (res.data && res.data.success) {
+        navigate("/dashboard");
+        toast({
+          title: "Registration Successful",
+          description: res.data.message,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: res.data.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } catch (error) {
-      console.error("Error registering for the event", error);
+      // console.error("Error registering for the event", error);
 
       toast({
         title: "Registration Failed",

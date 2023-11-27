@@ -90,7 +90,7 @@ const MarkAttendance = ({ eventId }) => {
         Mark Attendance
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent bg="#212121">
           {/* <ModalHeader>Modal Title</ModalHeader> */}

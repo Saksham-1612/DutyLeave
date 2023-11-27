@@ -24,6 +24,7 @@ import UserBadgeItem from "../components/userItems/UserBadgeItem";
 import UserListItem from "../components/userItems/UserListItem";
 import MarkAttendance from "../components/manage/MarkAttendance";
 import { useAuth } from "../context/GlobalProvider";
+import ViewAttendance from "../components/manage/ViewAttendance";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -88,7 +89,7 @@ const Events = () => {
 
       setUserDetails(
         userData?.data?.attendeesData.reduce((acc, user) => {
-          acc[user._id] = user; // Assuming 'id' is the user's ID
+          acc[user._id] = user;
           return acc;
         }, {})
       );
@@ -622,6 +623,8 @@ const Events = () => {
                     gap="10px"
                     mb="20px"
                   >
+                    <ViewAttendance eventId={e._id} />
+
                     <MarkAttendance eventId={e._id} />
 
                     {isUserAdmin || isUserFaculty || isUserModerator ? (
@@ -661,6 +664,7 @@ const Events = () => {
         finalFocusRef={finalRef}
         isOpen={isOpen}
         onClose={onClose}
+        isCentered
       >
         <ModalOverlay />
         <ModalContent bg="#212121" color="white">
