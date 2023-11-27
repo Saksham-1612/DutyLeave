@@ -85,7 +85,7 @@ const UpdateRole = ({ children }) => {
     <>
       <span onClick={onOpen}>{children}</span>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent bg="#212121" color="white">
           <ModalHeader
