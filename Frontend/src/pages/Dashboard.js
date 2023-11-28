@@ -35,6 +35,21 @@ const Dashboard = () => {
           className="h-[70%] object-contain aspect-square"
           src="https://upload.wikimedia.org/wikipedia/en/3/3a/Lovely_Professional_University_logo.png"
         />
+        <div>
+          {auth?.user?.role === "SuperAdmin" ||
+          auth?.user?.role === "admin" ||
+          auth?.user?.role === "faculty" ? (
+            <>
+              <Box>
+                <Text textColor={"orange.500"} fontWeight={"bold"}>
+                  Admin Panel
+                </Text>
+              </Box>
+            </>
+          ) : (
+            ""
+          )}
+        </div>
         <div className="flex flex-row items-center gap-x-4">
           {auth?.user?.role === "SuperAdmin" && (
             <UpdateRole>
@@ -68,18 +83,18 @@ const Dashboard = () => {
       </Button> */}
       {/* {auth?.user?.role != "SuperAdmin" && ( */}
       <div className="grid">
-        {auth?.user?.role === "SuperAdmin" ||
+        {/* {auth?.user?.role === "SuperAdmin" ||
         auth?.user?.role === "admin" ||
         auth?.user?.role === "faculty" ? (
           <>
             <Box>
               <Text>Admin Panel</Text>
-              {/* <Scanner /> */}
             </Box>
           </>
         ) : (
           ""
-        )}
+        )} */}
+
         <Qr />
       </div>
       {/* )} */}

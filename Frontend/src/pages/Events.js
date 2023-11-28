@@ -487,7 +487,7 @@ const Events = () => {
 
   return (
     <Box
-      w="100vw"
+      w="100%"
       display="flex"
       justifyContent="space-evenly"
       minH="100vh"

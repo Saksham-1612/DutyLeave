@@ -8,23 +8,33 @@ export default function Qr() {
 
   useEffect(() => {
     if (userInfo && qrCodeRef.current) {
-      // Generate the QR code and set it in the component's state
       qrCodeRef.current.makeCode(JSON.stringify(userInfo.user));
     }
   }, [userInfo]);
 
   return (
-    <Box textAlign="center" mt="8">
+    <Box width="100vw" textAlign="center" mt="8">
       <Text fontSize="xl" mb="4">
         This is QR CODE
       </Text>
-      <Box p="4" display={"flex"} alignItems={"center"}>
+      <Box
+        p="1"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        margin={"auto"}
+        bg="beige"
+        width={"25vw"}
+        height="55vh"
+      >
         {userInfo ? (
-          <QRCode
-            ref={qrCodeRef}
-            value={JSON.stringify(userInfo.user)}
-            size={320}
-          />
+          <div>
+            <QRCode
+              ref={qrCodeRef}
+              value={JSON.stringify(userInfo.user)}
+              size={320}
+            />
+          </div>
         ) : (
           <Text>No user information found.</Text>
         )}

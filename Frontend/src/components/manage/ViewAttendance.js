@@ -83,7 +83,13 @@ const ViewAttendance = ({ eventId }) => {
         View Attendance
       </Button>
 
-      <Modal isCentered isOpen={isOpen} size="6xl" onClose={onClose}>
+      <Modal
+        isCentered
+        isOpen={isOpen}
+        size="6xl"
+        onClose={onClose}
+        scrollBehavior="inside"
+      >
         <ModalOverlay />
         <ModalContent bg="#212121">
           <ModalHeader textAlign="center">Attendance List</ModalHeader>
